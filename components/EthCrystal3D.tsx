@@ -5,10 +5,8 @@ import { useEffect, useRef } from "react";
 interface Particle {
   x: number;
   y: number;
-  z: number;
   vx: number;
   vy: number;
-  vz: number;
   size: number;
   opacity: number;
 }
@@ -16,104 +14,83 @@ interface Particle {
 interface Crystal {
   x: number;
   y: number;
-  z: number;
   rotX: number;
   rotY: number;
-  rotZ: number;
   vRotX: number;
   vRotY: number;
   floatOffset: number;
   scale: number;
-  color: string;
 }
 
-function project3D(
-  x: number,
-  y: number,
-  z: number,
-  fov: number,
-  cx: number,
-  cy: number
+// Project a 3-D point onto 2-D screen space
+function project(
+  x: number, y: number, z: number,
+  fov: number, cx: number, cy: number
 ) {
-  const scale = fov / (fov + z);
-  return { x: cx + x * scale, y: cy + y * scale, scale };
+  const s = fov / (fov + z);
+  return { x: cx + x * s, y: cy + y * s, s };
 }
 
+// Draw one ETH diamond (octahedron) projected from 3-D
 function drawDiamond(
   ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
+  cx: number, cy: number,
   size: number,
-  rotY: number,
-  rotX: number,
-  color: string,
+  rotY: number, rotX: number,
   alpha: number
 ) {
   ctx.save();
   ctx.translate(cx, cy);
 
-  const cosY = Math.cos(rotY);
-  const sinY = Math.sin(rotY);
   const cosX = Math.cos(rotX);
   const sinX = Math.sin(rotX);
 
-  // ETH diamond: 6 faces of an octahedron projected
-  const vertices = [
-    [0, -size, 0],    // top
-    [size * cosY, 0, size * sinY],   // right
-    [size * Math.cos(rotY + Math.PI * 2/3), 0, size * Math.sin(rotY + Math.PI * 2/3)], // left
-    [size * Math.cos(rotY + Math.PI * 4/3), 0, size * Math.sin(rotY + Math.PI * 4/3)], // back
-    [0, size * 0.8, 0],  // bottom
+  // Six vertices of an octahedron in local 3-D space
+  const rawVerts: [number, number, number][] = [
+    [0, -size, 0],                                                          // top
+    [ size * Math.cos(rotY),                  0,  size * Math.sin(rotY)],   // right
+    [ size * Math.cos(rotY + 2.094),          0,  size * Math.sin(rotY + 2.094)],
+    [ size * Math.cos(rotY + 4.189),          0,  size * Math.sin(rotY + 4.189)],
+    [0,  size * 0.75, 0],                                                   // bottom
   ];
 
-  // Project vertices
-  const fov = 300;
-  const projected = vertices.map(([vx, vy, vz]) => {
-    const ry = vy * cosX - vz * sinX;
-    const rz = vy * sinX + vz * cosX;
-    const s = fov / (fov + rz + 200);
-    return { px: vx * s, py: ry * s };
+  // Apply X rotation, then project
+  const fov = 320;
+  const verts = rawVerts.map(([vx, vy, vz]) => {
+    const ry2 = vy * cosX - vz * sinX;
+    const rz2 = vy * sinX + vz * cosX;
+    const s   = fov / (fov + rz2 + 250);
+    return { px: vx * s, py: ry2 * s, rz: rz2 };
   });
 
-  // Draw faces
-  const faces = [
-    [0, 1, 2],
-    [0, 2, 3],
-    [0, 3, 1],
-    [4, 1, 2],
-    [4, 2, 3],
-    [4, 3, 1],
+  // Eight triangular faces
+  const faces: [number, number, number][] = [
+    [0,1,2],[0,2,3],[0,3,1],
+    [4,1,2],[4,2,3],[4,3,1],
   ];
 
-  const gradColors = [
-    `rgba(98, 126, 234, ${alpha * 0.9})`,
-    `rgba(61, 90, 254, ${alpha * 0.7})`,
-    `rgba(167, 139, 250, ${alpha * 0.8})`,
-    `rgba(98, 126, 234, ${alpha * 0.6})`,
-    `rgba(61, 90, 254, ${alpha * 0.85})`,
-    `rgba(138, 159, 255, ${alpha * 0.65})`,
-  ];
+  // Brightness palette — whites and light greys
+  const brightness = [0.95, 0.65, 0.80, 0.70, 0.90, 0.55];
 
   faces.forEach(([a, b, c], i) => {
-    const pa = projected[a];
-    const pb = projected[b];
-    const pc = projected[c];
+    const pa = verts[a], pb = verts[b], pc = verts[c];
 
-    // Back-face culling
+    // Back-face cull
     const cross =
       (pb.px - pa.px) * (pc.py - pa.py) -
       (pb.py - pa.py) * (pc.px - pa.px);
     if (cross < 0) return;
 
+    const br = brightness[i] * alpha;
     ctx.beginPath();
     ctx.moveTo(pa.px, pa.py);
     ctx.lineTo(pb.px, pb.py);
     ctx.lineTo(pc.px, pc.py);
     ctx.closePath();
-    ctx.fillStyle = gradColors[i];
+    ctx.fillStyle   = `rgba(255,255,255,${br * 0.18})`;
     ctx.fill();
-    ctx.strokeStyle = `rgba(138, 159, 255, ${alpha * 0.3})`;
-    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = `rgba(255,255,255,${br * 0.55})`;
+    ctx.lineWidth   = 0.6;
     ctx.stroke();
   });
 
@@ -122,8 +99,7 @@ function drawDiamond(
 
 export default function EthCrystal3D() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const frameRef = useRef<number>(0);
-  const timeRef = useRef(0);
+  const rafRef    = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -132,136 +108,137 @@ export default function EthCrystal3D() {
     if (!ctx) return;
 
     const resize = () => {
-      canvas.width = canvas.offsetWidth;
+      canvas.width  = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
     };
     resize();
-    window.addEventListener("resize", resize);
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
 
-    // Particles
-    const particles: Particle[] = Array.from({ length: 250 }, () => ({
-      x: (Math.random() - 0.5) * canvas.width * 2,
-      y: (Math.random() - 0.5) * canvas.height * 2,
-      z: Math.random() * 500,
-      vx: (Math.random() - 0.5) * 0.1,
-      vy: (Math.random() - 0.5) * 0.1,
-      vz: (Math.random() - 0.5) * 0.2,
-      size: Math.random() * 1.5 + 0.3,
-      opacity: Math.random() * 0.6 + 0.1,
-    }));
+    // ── particles ────────────────────────────────────────────────────────────
+    const mkParticles = (): Particle[] =>
+      Array.from({ length: 220 }, () => ({
+        x:       Math.random() * canvas.width,
+        y:       Math.random() * canvas.height,
+        vx:      (Math.random() - 0.5) * 0.12,
+        vy:      (Math.random() - 0.5) * 0.08,
+        size:    Math.random() * 1.2 + 0.2,
+        opacity: Math.random() * 0.35 + 0.05,
+      }));
+    const particles: Particle[] = mkParticles();
 
-    // Crystals
+    // ── crystals ─────────────────────────────────────────────────────────────
     const crystals: Crystal[] = [
-      { x: 0, y: 0, z: 0, rotX: 0, rotY: 0, rotZ: 0, vRotX: 0.003, vRotY: 0.008, floatOffset: 0, scale: 55, color: "#627EEA" },
-      { x: -180, y: -80, z: -100, rotX: 0.2, rotY: 0.5, rotZ: 0, vRotX: 0.004, vRotY: 0.012, floatOffset: 1.2, scale: 28, color: "#A78BFA" },
-      { x: 180, y: 60, z: -150, rotX: -0.1, rotY: 1.0, rotZ: 0, vRotX: 0.003, vRotY: 0.009, floatOffset: 2.4, scale: 22, color: "#627EEA" },
-      { x: 120, y: -120, z: -80, rotX: 0.4, rotY: 2.0, rotZ: 0, vRotX: 0.005, vRotY: 0.015, floatOffset: 0.8, scale: 16, color: "#3D5AFE" },
-      { x: -140, y: 110, z: -60, rotX: -0.2, rotY: 3.0, rotZ: 0, vRotX: 0.004, vRotY: 0.011, floatOffset: 3.1, scale: 20, color: "#8A9FFF" },
+      { x:    0, y:   0, rotX:  0,    rotY: 0,    vRotX: 0.003, vRotY: 0.007, floatOffset: 0,    scale: 52 },
+      { x: -175, y: -70, rotX:  0.2,  rotY: 0.5,  vRotX: 0.004, vRotY: 0.011, floatOffset: 1.2,  scale: 26 },
+      { x:  180, y:  55, rotX: -0.1,  rotY: 1.0,  vRotX: 0.003, vRotY: 0.009, floatOffset: 2.4,  scale: 20 },
+      { x:  115, y:-115, rotX:  0.4,  rotY: 2.0,  vRotX: 0.005, vRotY: 0.014, floatOffset: 0.8,  scale: 15 },
+      { x: -140, y: 105, rotX: -0.2,  rotY: 3.0,  vRotX: 0.004, vRotY: 0.010, floatOffset: 3.1,  scale: 18 },
+      { x:    5, y:-145, rotX:  0.1,  rotY: 1.5,  vRotX: 0.003, vRotY: 0.013, floatOffset: 1.8,  scale: 12 },
     ];
 
-    // Mouse parallax
-    let mouseX = 0, mouseY = 0;
-    const handleMouse = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = (e.clientX - rect.left - rect.width / 2) / rect.width;
-      mouseY = (e.clientY - rect.top - rect.height / 2) / rect.height;
+    // ── mouse parallax ───────────────────────────────────────────────────────
+    let mx = 0, my = 0;
+    const onMouse = (e: MouseEvent) => {
+      const r = canvas.getBoundingClientRect();
+      mx = (e.clientX - r.left  - r.width  / 2) / r.width;
+      my = (e.clientY - r.top   - r.height / 2) / r.height;
     };
-    canvas.addEventListener("mousemove", handleMouse);
+    canvas.addEventListener("mousemove", onMouse);
 
-    const animate = () => {
-      timeRef.current += 0.016;
-      const t = timeRef.current;
+    let t = 0;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const frame = () => {
+      t += 0.016;
 
-      const cx = canvas.width / 2;
-      const cy = canvas.height / 2;
+      const W = canvas.width, H = canvas.height;
+      const cx = W / 2, cy = H / 2;
 
-      // Draw star particles
+      ctx.clearRect(0, 0, W, H);
+
+      // ── particles ──────────────────────────────────────────────────────────
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
-        if (p.x > canvas.width) p.x = -50;
-        if (p.x < -50) p.x = canvas.width;
-        if (p.y > canvas.height) p.y = -50;
-        if (p.y < -50) p.y = canvas.height;
-
-        const fov = 400;
-        const proj = project3D(p.x - cx, p.y - cy, p.z - 200, fov, cx, cy);
-        if (proj.scale <= 0) return;
+        if (p.x > W + 20) p.x = -20;
+        if (p.x < -20)    p.x =  W + 20;
+        if (p.y > H + 20) p.y = -20;
+        if (p.y < -20)    p.y =  H + 20;
 
         ctx.beginPath();
-        ctx.arc(proj.x, proj.y, p.size * proj.scale, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(98, 126, 234, ${p.opacity * proj.scale})`;
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${p.opacity})`;
         ctx.fill();
       });
 
-      // Draw ambient glow behind main crystal
-      const glowX = cx + mouseX * 20;
-      const glowY = cy + mouseY * 20 + Math.sin(t * 0.5) * 10;
-      const grad = ctx.createRadialGradient(glowX, glowY, 0, glowX, glowY, 120);
-      grad.addColorStop(0, "rgba(98, 126, 234, 0.12)");
-      grad.addColorStop(0.5, "rgba(61, 90, 254, 0.05)");
-      grad.addColorStop(1, "transparent");
-      ctx.fillStyle = grad;
-      ctx.fillRect(glowX - 120, glowY - 120, 240, 240);
+      // ── ambient halo behind main crystal ───────────────────────────────────
+      const hx = cx + mx * 18, hy = cy + my * 18 + Math.sin(t * 0.5) * 8;
+      const g  = ctx.createRadialGradient(hx, hy, 0, hx, hy, 130);
+      g.addColorStop(0,   "rgba(255,255,255,0.06)");
+      g.addColorStop(0.6, "rgba(255,255,255,0.02)");
+      g.addColorStop(1,   "transparent");
+      ctx.fillStyle = g;
+      ctx.fillRect(hx - 130, hy - 130, 260, 260);
 
-      // Draw orbital ring
+      // ── orbital ring ───────────────────────────────────────────────────────
       ctx.save();
-      ctx.translate(cx + mouseX * 15, cy + mouseY * 15);
-      ctx.rotate(t * 0.3);
+      ctx.translate(cx + mx * 14, cy + my * 12);
+      ctx.rotate(t * 0.25);
       ctx.beginPath();
-      const ringRad = 90 + Math.sin(t * 0.8) * 5;
-      for (let i = 0; i <= 360; i += 5) {
-        const angle = (i * Math.PI) / 180;
-        const rx = Math.cos(angle) * ringRad;
-        const ry = Math.sin(angle) * ringRad * 0.25;
-        if (i === 0) ctx.moveTo(rx, ry);
-        else ctx.lineTo(rx, ry);
+      const rr = 88 + Math.sin(t * 0.7) * 4;
+      for (let i = 0; i <= 360; i += 4) {
+        const a = (i * Math.PI) / 180;
+        const rx = Math.cos(a) * rr;
+        const ry = Math.sin(a) * rr * 0.22; // flatten to ellipse
+        i === 0 ? ctx.moveTo(rx, ry) : ctx.lineTo(rx, ry);
       }
       ctx.closePath();
-      ctx.strokeStyle = "rgba(98, 126, 234, 0.2)";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.lineWidth   = 0.8;
       ctx.stroke();
       ctx.restore();
 
-      // Draw crystals
+      // ── second ring (counter-rotating) ─────────────────────────────────────
+      ctx.save();
+      ctx.translate(cx + mx * 14, cy + my * 12);
+      ctx.rotate(-t * 0.15);
+      ctx.beginPath();
+      const rr2 = 115 + Math.sin(t * 0.5) * 5;
+      for (let i = 0; i <= 360; i += 4) {
+        const a = (i * Math.PI) / 180;
+        const rx = Math.cos(a) * rr2;
+        const ry = Math.sin(a) * rr2 * 0.18;
+        i === 0 ? ctx.moveTo(rx, ry) : ctx.lineTo(rx, ry);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = "rgba(255,255,255,0.05)";
+      ctx.lineWidth   = 0.5;
+      ctx.stroke();
+      ctx.restore();
+
+      // ── crystals ───────────────────────────────────────────────────────────
       crystals.forEach((c, i) => {
         c.rotY += c.vRotY;
-        c.rotX += c.vRotX * Math.sin(t * 0.5);
+        c.rotX += c.vRotX * Math.sin(t * 0.4);
 
-        const floatY = Math.sin(t * 0.6 + c.floatOffset) * 12;
-        const floatX = Math.cos(t * 0.4 + c.floatOffset) * 6;
+        const floatY = Math.sin(t * 0.55 + c.floatOffset) * 11;
+        const floatX = Math.cos(t * 0.38 + c.floatOffset) * 5;
+        const px     = cx + mx * (i === 0 ? 14 : 22 + i * 6) + c.x + floatX;
+        const py     = cy + my * (i === 0 ? 10 : 16 + i * 4) + c.y + floatY;
 
-        const parallaxX = mouseX * (i === 0 ? 15 : 25 + i * 5);
-        const parallaxY = mouseY * (i === 0 ? 10 : 18 + i * 4);
-
-        const screenX = cx + c.x + floatX + parallaxX;
-        const screenY = cy + c.y + floatY + parallaxY;
-
-        const alpha = i === 0 ? 0.92 : 0.6 + Math.sin(t * 0.8 + c.floatOffset) * 0.1;
-
-        drawDiamond(ctx, screenX, screenY, c.scale, c.rotY, c.rotX, c.color, alpha);
+        const alpha  = i === 0 ? 0.95 : 0.55 + Math.sin(t * 0.7 + c.floatOffset) * 0.1;
+        drawDiamond(ctx, px, py, c.scale, c.rotY, c.rotX, alpha);
       });
 
-      // Subtle scanline effect
-      const scanlineGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      for (let y = 0; y < canvas.height; y += 4) {
-        scanlineGrad.addColorStop(y / canvas.height, "rgba(0,0,0,0.015)");
-        if (y + 2 < canvas.height) {
-          scanlineGrad.addColorStop((y + 2) / canvas.height, "rgba(0,0,0,0)");
-        }
-      }
-
-      frameRef.current = requestAnimationFrame(animate);
+      rafRef.current = requestAnimationFrame(frame);
     };
 
-    animate();
+    rafRef.current = requestAnimationFrame(frame);
 
     return () => {
-      cancelAnimationFrame(frameRef.current);
-      window.removeEventListener("resize", resize);
-      canvas.removeEventListener("mousemove", handleMouse);
+      cancelAnimationFrame(rafRef.current);
+      ro.disconnect();
+      canvas.removeEventListener("mousemove", onMouse);
     };
   }, []);
 
@@ -269,7 +246,7 @@ export default function EthCrystal3D() {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
-      style={{ opacity: 0.9 }}
+      style={{ opacity: 0.85 }}
     />
   );
 }

@@ -4,186 +4,131 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEthPrice } from "@/hooks/useEthPrice";
 import { formatCurrency, formatPercent, cn } from "@/lib/utils";
 import { formatLargeNumber } from "@/lib/coinbase";
-import { TrendingUp, TrendingDown, Activity, BarChart2, DollarSign, Euro } from "lucide-react";
+import { TrendingUp, TrendingDown, BarChart2, Euro } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const EthCrystal3D = dynamic(() => import("./EthCrystal3D"), {
   ssr: false,
-  loading: () => <div className="absolute inset-0 bg-eth-darker" />,
+  loading: () => <div className="absolute inset-0 bg-black" />,
 });
 
-function StatCard({ label, value, sub, icon: Icon, color = "purple" }: {
+function StatCard({ label, value, sub, icon: Icon, color }: {
   label: string;
   value: string;
   sub?: string;
   icon: React.ElementType;
-  color?: "purple" | "green" | "red" | "blue";
+  color: "green" | "red" | "white" | "grey";
 }) {
-  const colorMap = {
-    purple: "text-eth-purple border-eth-purple/20 bg-eth-purple/10",
-    green: "text-green-400 border-green-400/20 bg-green-400/10",
-    red: "text-red-400 border-red-400/20 bg-red-400/10",
-    blue: "text-blue-400 border-blue-400/20 bg-blue-400/10",
-  };
+  const iconColor = {
+    green: "text-green-400",
+    red:   "text-red-400",
+    white: "text-white",
+    grey:  "text-ink-4",
+  }[color];
 
   return (
-    <div className="rounded-xl border border-eth-border/30 bg-eth-card/40 backdrop-blur-sm p-4 hover:border-eth-border/50 transition-all duration-300 group">
+    <div className="rounded-xl border border-surface-4/50 bg-surface-2/60 backdrop-blur-sm p-4 hover:border-surface-5 transition-all duration-300">
       <div className="flex items-start justify-between mb-2">
-        <span className="text-xs text-slate-500 font-medium">{label}</span>
-        <div className={cn("p-1.5 rounded-lg border", colorMap[color])}>
-          <Icon className="w-3 h-3" />
-        </div>
+        <span className="text-xs text-ink-5 font-medium">{label}</span>
+        <Icon className={cn("w-3.5 h-3.5 mt-0.5", iconColor)} />
       </div>
-      <p className="text-lg font-bold text-white tabular-nums">{value}</p>
-      {sub && <p className="text-xs text-slate-500 mt-0.5">{sub}</p>}
+      <p className="text-base font-bold text-white tabular-nums">{value}</p>
+      {sub && <p className="text-xs text-ink-5 mt-0.5">{sub}</p>}
     </div>
   );
 }
 
 export default function PriceHero() {
   const { price, loading, lastTick } = useEthPrice(30000);
-
   const isUp = (price?.changePercent24h ?? 0) >= 0;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-eth-border/30 bg-eth-darker min-h-[420px] flex flex-col">
+    <div className="relative overflow-hidden rounded-2xl border border-surface-4/50 bg-black min-h-[400px] flex flex-col">
       {/* 3D background */}
       <EthCrystal3D />
 
-      {/* Scanline effect */}
-      <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden opacity-[0.02]">
-        <div className="absolute w-full h-0.5 bg-white animate-scanline" />
-      </div>
-
       {/* Gradient overlays */}
-      <div className="absolute inset-0 z-[2] bg-gradient-to-b from-eth-darker/60 via-transparent to-eth-darker/90 pointer-events-none" />
-      <div className="absolute inset-0 z-[2] bg-gradient-to-r from-eth-darker/40 via-transparent to-eth-darker/40 pointer-events-none" />
+      <div className="absolute inset-0 z-[2] bg-gradient-to-b from-black/70 via-black/20 to-black/90 pointer-events-none" />
+      <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-transparent to-black/50 pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col h-full p-8">
-        {/* Live badge */}
+      <div className="relative z-10 flex flex-col h-full p-7">
+
+        {/* Top bar */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-eth-card/60 border border-eth-border/30 backdrop-blur-sm">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-2/70 border border-surface-4/60 backdrop-blur-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-              <span className="text-xs text-slate-400 font-medium">LIVE</span>
+              <span className="text-[11px] text-ink-3 font-medium tracking-wide">LIVE</span>
             </div>
-            <div className="px-3 py-1.5 rounded-full bg-eth-card/60 border border-eth-border/30 backdrop-blur-sm text-xs text-slate-400">
-              ETH/USD • Coinbase
+            <div className="px-2.5 py-1 rounded-full bg-surface-2/70 border border-surface-4/60 backdrop-blur-sm text-[11px] text-ink-4 tracking-wide">
+              ETH / USD · Coinbase
             </div>
           </div>
-          <div className="text-xs text-slate-600 font-mono">
-            {price?.lastUpdated ? new Date(price.lastUpdated).toLocaleTimeString() : "—"}
-          </div>
+          <span className="text-xs text-ink-5 font-mono hidden sm:block">
+            {price?.lastUpdated ? new Date(price.lastUpdated).toLocaleTimeString() : ""}
+          </span>
         </div>
 
-        {/* Main price */}
+        {/* Price */}
         <div className="flex-1 flex flex-col justify-center">
           <motion.div
             key={price?.usd}
-            animate={lastTick ? {
-              scale: [1, 1.02, 1],
-              y: [0, lastTick === "up" ? -4 : 4, 0],
-            } : {}}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="mb-2"
+            animate={lastTick ? { y: [0, lastTick === "up" ? -5 : 5, 0] } : {}}
+            transition={{ duration: 0.25, ease: "easeOut" }}
           >
-            <div className="flex items-end gap-4">
-              {loading ? (
-                <div className="h-16 w-64 rounded-xl bg-eth-card/40 animate-pulse" />
-              ) : (
-                <div className={cn(
-                  "relative",
-                  lastTick === "up" && "text-green-400",
-                  lastTick === "down" && "text-red-400",
-                )}>
-                  <h1 className="text-6xl md:text-7xl font-black text-white tabular-nums tracking-tight leading-none"
-                    style={{ textShadow: "0 0 40px rgba(98, 126, 234, 0.3)" }}
-                  >
-                    {formatCurrency(price?.usd ?? 0)}
-                  </h1>
-                  {/* Glow behind price */}
-                  <div className="absolute inset-0 blur-3xl opacity-20 pointer-events-none"
-                    style={{ background: isUp ? "rgba(0,255,136,0.5)" : "rgba(255,59,48,0.5)" }}
-                  />
-                </div>
-              )}
-            </div>
+            {loading ? (
+              <div className="h-16 w-56 rounded-xl bg-surface-3/50 animate-pulse mb-3" />
+            ) : (
+              <h1
+                className={cn(
+                  "text-6xl md:text-7xl font-black tabular-nums tracking-tight leading-none mb-1 transition-colors duration-300",
+                  lastTick === "up"   ? "text-green-400" : "",
+                  lastTick === "down" ? "text-red-400"   : "text-white",
+                )}
+              >
+                {formatCurrency(price?.usd ?? 0)}
+              </h1>
+            )}
           </motion.div>
 
-          {/* EUR price */}
+          {/* EUR sub-price */}
           {!loading && price && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center gap-3 mb-4"
-            >
-              <span className="text-2xl font-semibold text-slate-400 tabular-nums">
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 mb-4">
+              <span className="text-xl font-semibold text-ink-4 tabular-nums">
                 ≈ {formatCurrency(price.eur, "EUR")}
               </span>
-              <span className="text-slate-600 text-sm">EUR</span>
             </motion.div>
           )}
 
-          {/* 24h change */}
+          {/* 24h badge */}
           <AnimatePresence mode="wait">
             {!loading && price && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-3"
-              >
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2">
                 <div className={cn(
-                  "flex items-center gap-2 px-3 py-1.5 rounded-full border backdrop-blur-sm",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm font-semibold backdrop-blur-sm",
                   isUp
                     ? "bg-green-400/10 border-green-400/20 text-green-400"
                     : "bg-red-400/10 border-red-400/20 text-red-400"
                 )}>
-                  {isUp ? (
-                    <TrendingUp className="w-3.5 h-3.5" />
-                  ) : (
-                    <TrendingDown className="w-3.5 h-3.5" />
-                  )}
-                  <span className="text-sm font-bold tabular-nums">
-                    {formatPercent(price.changePercent24h)}
-                  </span>
+                  {isUp ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                  <span className="tabular-nums">{formatPercent(price.changePercent24h)}</span>
                   <span className="text-xs opacity-70 tabular-nums">
                     ({price.change24h >= 0 ? "+" : ""}{formatCurrency(price.change24h)})
                   </span>
                 </div>
-                <span className="text-xs text-slate-600">24h change</span>
+                <span className="text-xs text-ink-5">24h change</span>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
-          <StatCard
-            label="24h High"
-            value={loading ? "—" : formatCurrency(price?.high24h ?? 0)}
-            icon={TrendingUp}
-            color="green"
-          />
-          <StatCard
-            label="24h Low"
-            value={loading ? "—" : formatCurrency(price?.low24h ?? 0)}
-            icon={TrendingDown}
-            color="red"
-          />
-          <StatCard
-            label="24h Volume"
-            value={loading ? "—" : formatLargeNumber(price?.volume24h ?? 0)}
-            sub="ETH traded"
-            icon={BarChart2}
-            color="purple"
-          />
-          <StatCard
-            label="EUR Price"
-            value={loading ? "—" : formatCurrency(price?.eur ?? 0, "EUR")}
-            icon={Euro}
-            color="blue"
-          />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-7">
+          <StatCard label="24h High"   value={loading ? "—" : formatCurrency(price?.high24h ?? 0)}       icon={TrendingUp}  color="green" />
+          <StatCard label="24h Low"    value={loading ? "—" : formatCurrency(price?.low24h ?? 0)}        icon={TrendingDown} color="red"  />
+          <StatCard label="24h Volume" value={loading ? "—" : formatLargeNumber(price?.volume24h ?? 0)}  icon={BarChart2}   color="grey"  sub="ETH" />
+          <StatCard label="EUR Price"  value={loading ? "—" : formatCurrency(price?.eur ?? 0, "EUR")}    icon={Euro}        color="white" />
         </div>
       </div>
     </div>

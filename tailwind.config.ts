@@ -10,71 +10,71 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        eth: {
-          purple: "#627EEA",
-          lavender: "#8A9FFF",
-          deep: "#3D5AFE",
-          glow: "#A78BFA",
-          dark: "#0B0B1A",
-          darker: "#060610",
-          card: "#0F0F2A",
-          border: "#1E1E4A",
+        surface: {
+          0: "#000000",
+          1: "#0a0a0a",
+          2: "#111111",
+          3: "#171717",
+          4: "#1f1f1f",
+          5: "#2a2a2a",
+          6: "#333333",
         },
-        gold: {
-          DEFAULT: "#F7931A",
-          light: "#FFB74D",
+        ink: {
+          DEFAULT: "#ffffff",
+          2: "#e5e5e5",
+          3: "#a3a3a3",
+          4: "#737373",
+          5: "#525252",
+          6: "#404040",
         },
-      },
-      fontFamily: {
-        mono: ["var(--font-mono)", "monospace"],
-        sans: ["var(--font-sans)", "sans-serif"],
       },
       animation: {
-        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
-        "float": "float 6s ease-in-out infinite",
-        "spin-slow": "spin 20s linear infinite",
-        "price-tick": "price-tick 0.3s ease-out",
-        "gradient-shift": "gradient-shift 8s ease infinite",
-        "scanline": "scanline 8s linear infinite",
+        "glow-pulse": "glow-pulse 3s ease-in-out infinite",
+        "float": "float 7s ease-in-out infinite",
+        "spin-slow": "spin 25s linear infinite",
+        "price-up": "price-up 0.4s ease-out",
+        "price-down": "price-down 0.4s ease-out",
+        "scanline": "scanline 10s linear infinite",
+        "shimmer": "shimmer 2s linear infinite",
       },
       keyframes: {
         "glow-pulse": {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(98, 126, 234, 0.3), 0 0 40px rgba(98, 126, 234, 0.1)" },
-          "50%": { boxShadow: "0 0 40px rgba(98, 126, 234, 0.6), 0 0 80px rgba(98, 126, 234, 0.3)" },
+          "0%, 100%": { opacity: "0.6" },
+          "50%": { opacity: "1" },
         },
         "float": {
-          "0%, 100%": { transform: "translateY(0px) rotate(0deg)" },
-          "33%": { transform: "translateY(-20px) rotate(2deg)" },
-          "66%": { transform: "translateY(-10px) rotate(-1deg)" },
+          "0%, 100%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-18px)" },
         },
-        "price-tick": {
-          "0%": { transform: "scale(1)" },
-          "50%": { transform: "scale(1.05)" },
-          "100%": { transform: "scale(1)" },
+        "price-up": {
+          "0%": { color: "inherit" },
+          "40%": { color: "#22c55e" },
+          "100%": { color: "inherit" },
         },
-        "gradient-shift": {
-          "0%, 100%": { backgroundPosition: "0% 50%" },
-          "50%": { backgroundPosition: "100% 50%" },
+        "price-down": {
+          "0%": { color: "inherit" },
+          "40%": { color: "#ef4444" },
+          "100%": { color: "inherit" },
         },
         "scanline": {
           "0%": { transform: "translateY(-100%)" },
           "100%": { transform: "translateY(100vh)" },
         },
-      },
-      backgroundImage: {
-        "eth-gradient": "linear-gradient(135deg, #627EEA 0%, #A78BFA 50%, #3D5AFE 100%)",
-        "dark-mesh": "radial-gradient(at 40% 20%, #1a1a3e 0px, transparent 50%), radial-gradient(at 80% 0%, #0d0d2e 0px, transparent 50%), radial-gradient(at 0% 50%, #0f0f2a 0px, transparent 50%)",
-        "card-shine": "linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%)",
-      },
-      backdropBlur: {
-        xs: "2px",
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
       },
       boxShadow: {
-        "eth-glow": "0 0 30px rgba(98, 126, 234, 0.4), 0 0 60px rgba(98, 126, 234, 0.2)",
-        "eth-glow-lg": "0 0 60px rgba(98, 126, 234, 0.5), 0 0 120px rgba(98, 126, 234, 0.25)",
-        "card": "0 4px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)",
-        "green-glow": "0 0 20px rgba(0, 255, 136, 0.3)",
-        "red-glow": "0 0 20px rgba(255, 59, 48, 0.3)",
+        "card": "0 1px 0 0 rgba(255,255,255,0.04) inset, 0 4px 24px rgba(0,0,0,0.6)",
+        "card-hover": "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 8px 32px rgba(0,0,0,0.7)",
+        "white-glow": "0 0 20px rgba(255,255,255,0.08), 0 0 40px rgba(255,255,255,0.04)",
+        "white-glow-lg": "0 0 40px rgba(255,255,255,0.12), 0 0 80px rgba(255,255,255,0.06)",
+        "green-glow": "0 0 16px rgba(34, 197, 94, 0.25)",
+        "red-glow": "0 0 16px rgba(239, 68, 68, 0.25)",
+      },
+      backgroundImage: {
+        "noise": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E\")",
       },
     },
   },
