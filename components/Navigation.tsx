@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useEthPrice } from "@/hooks/useEthPrice";
 import { formatCurrency, cn } from "@/lib/utils";
-import { BarChart2, Wallet, Zap } from "lucide-react";
+import { BarChart2, Wallet, Zap, MessageSquare } from "lucide-react";
 
 const ETH_LOGO = () => (
   <svg viewBox="0 0 784.37 1277.39" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
@@ -21,9 +21,10 @@ const ETH_LOGO = () => (
 );
 
 const navItems = [
-  { href: "/",           label: "Dashboard",   icon: BarChart2 },
-  { href: "/portfolio",  label: "Portfolio",   icon: Wallet    },
-  { href: "/flippening", label: "Flippening",  icon: Zap       },
+  { href: "/",           label: "Dashboard",   icon: BarChart2      },
+  { href: "/portfolio",  label: "Portfolio",   icon: Wallet         },
+  { href: "/flippening", label: "Flippening",  icon: Zap            },
+  { href: "/chat",       label: "Chat",        icon: MessageSquare  },
 ];
 
 export default function Navigation() {
