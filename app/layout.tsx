@@ -12,46 +12,35 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "EthValue — What is ETH actually worth right now?",
   description:
-    "Real-time Ethereum price tracker with 10-year candlestick history, portfolio manager in USD & EUR, and deep metrics beyond the spot price.",
-  keywords: ["ethereum", "ETH", "price", "portfolio", "crypto", "candlestick", "chart"],
+    "Real-time Ethereum price tracker with 10-year candlestick history, portfolio manager in USD & EUR, and deep metrics beyond spot price.",
+  keywords: ["ethereum", "ETH", "price", "portfolio", "crypto", "candlestick"],
   openGraph: {
     title: "EthValue — Beyond ETH Spot Price",
-    description: "Track your ETH portfolio in real-time. USD & EUR values, historical charts, staking metrics.",
+    description: "Track your ETH portfolio in real-time. USD & EUR values, 10-year chart, staking metrics.",
     type: "website",
   },
-  themeColor: "#060610",
+  themeColor: "#000000",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      </head>
-      <body
-        className={`${inter.variable} font-sans bg-eth-darker text-white min-h-screen antialiased`}
-      >
-        {/* Background mesh */}
+      <body className={`${inter.variable} font-sans bg-black text-white min-h-screen antialiased`}>
+        {/* Subtle dot grid */}
+        <div
+          className="fixed inset-0 z-0 pointer-events-none"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)",
+            backgroundSize: "32px 32px",
+          }}
+        />
+        {/* Vignette */}
         <div
           className="fixed inset-0 z-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse at 20% 10%, rgba(98, 126, 234, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 90%, rgba(167, 139, 250, 0.05) 0%, transparent 50%)",
-          }}
-        />
-
-        {/* Grid overlay */}
-        <div
-          className="fixed inset-0 z-0 pointer-events-none opacity-[0.025]"
-          style={{
-            backgroundImage:
-              "linear-gradient(rgba(98,126,234,1) 1px, transparent 1px), linear-gradient(90deg, rgba(98,126,234,1) 1px, transparent 1px)",
-            backgroundSize: "60px 60px",
+              "radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%)",
           }}
         />
 

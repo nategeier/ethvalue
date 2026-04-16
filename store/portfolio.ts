@@ -1,14 +1,14 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type { PortfolioEntry } from "@/lib/types";
 
 interface PortfolioStore {
   entries: PortfolioEntry[];
-  addEntry: (label: string, amount: number) => void;
+  addEntry:    (label: string, amount: number) => void;
   removeEntry: (id: string) => void;
   updateEntry: (id: string, label: string, amount: number) => void;
-  clearAll: () => void;
-  totalEth: () => number;
+  clearAll:    () => void;
+  totalEth:    () => number;
 }
 
 export const usePortfolioStore = create<PortfolioStore>()(
@@ -18,36 +18,41 @@ export const usePortfolioStore = create<PortfolioStore>()(
 
       addEntry: (label, amount) => {
         const entry: PortfolioEntry = {
-          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id:        `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
           label,
           amount,
           createdAt: new Date().toISOString(),
         };
-        set((state) => ({ entries: [...state.entries, entry] }));
+        set((s) => ({ entries: [...s.entries, entry] }));
       },
 
-      removeEntry: (id) => {
-        set((state) => ({
-          entries: state.entries.filter((e) => e.id !== id),
-        }));
-      },
+      removeEntry: (id) =>
+        set((s) => ({ entries: s.entries.filter((e) => e.id !== id) })),
 
-      updateEntry: (id, label, amount) => {
-        set((state) => ({
-          entries: state.entries.map((e) =>
+      updateEntry: (id, label, amount) =>
+        set((s) => ({
+          entries: s.entries.map((e) =>
             e.id === id ? { ...e, label, amount } : e
           ),
-        }));
-      },
+        })),
 
       clearAll: () => set({ entries: [] }),
 
-      totalEth: () => {
-        return get().entries.reduce((sum, e) => sum + e.amount, 0);
-      },
+      totalEth: () => get().entries.reduce((sum, e) => sum + e.amount, 0),
     }),
     {
-      name: "ethvalue-portfolio",
+      // Unique key → scoped to this app, not shared across other sites
+      name:    "ethvalue-v1-portfolio",
+      storage: createJSONStorage(() => localStorage),
+      // Only persist entries; derived state (totalEth fn) is excluded automatically
+      partialize: (s) => ({ entries: s.entries }),
+      // Version for future schema migrations
+      version: 1,
+      migrate: (persisted, version) => {
+        // v0 → v1: no-op (first release), extend here for future changes
+        if (version === 0) return persisted as PortfolioStore;
+        return persisted as PortfolioStore;
+      },
     }
   )
 );

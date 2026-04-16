@@ -47,16 +47,13 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-eth-border/20 pt-6 pb-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
-        <div className="flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-eth-purple/50" />
-          <span>EthValue — What is ETH actually worth right now?</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <span>Data: Coinbase Exchange API</span>
-          <span>•</span>
+      <footer className="border-t border-surface-4/40 pt-5 pb-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-ink-5">
+        <span>EthValue — What is ETH actually worth right now?</span>
+        <div className="flex items-center gap-3">
+          <span>Coinbase Exchange API</span>
+          <span className="text-surface-5">·</span>
           <span>Prices update every 30s</span>
-          <span>•</span>
+          <span className="text-surface-5">·</span>
           <span>Not financial advice</span>
         </div>
       </footer>
