@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { EthPrice } from "@/lib/types";
 
 export function useEthPrice(refreshInterval = 30000) {
@@ -8,10 +8,16 @@ export function useEthPrice(refreshInterval = 30000) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastTick, setLastTick] = useState<"up" | "down" | null>(null);
+  const isFirstFetch = useRef(true);
 
   const fetchPrice = useCallback(async () => {
     try {
-      const res = await fetch("/api/eth-price");
+      // First load bypasses all caches so the user sees a live price immediately.
+      // Subsequent polls use the default cached route for efficiency.
+      const fresh = isFirstFetch.current;
+      isFirstFetch.current = false;
+      const url = fresh ? "/api/eth-price?fresh=1" : "/api/eth-price";
+      const res = await fetch(url, fresh ? { cache: "no-store" } : undefined);
       if (!res.ok) throw new Error("Failed to fetch price");
       const data: EthPrice = await res.json();
 
