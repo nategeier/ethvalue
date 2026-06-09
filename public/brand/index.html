@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>EthValue — Brand sheet</title>
+<link rel="icon" href="favicon/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #060607;
+    --panel: #0c0c0e;
+    --line: rgba(255,255,255,0.08);
+    --ink: #f4f4f5;
+    --dim: rgba(255,255,255,0.42);
+    --accent: #3fb27f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: 'Sora', sans-serif; font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+    padding: 72px 40px 120px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+    letter-spacing: 0.32em; text-transform: uppercase; color: var(--dim);
+  }
+  h1 { font-weight: 300; font-size: 40px; letter-spacing: -0.03em; margin: 14px 0 6px; }
+  h1 b { font-weight: 600; }
+  .lede { color: var(--dim); font-size: 16px; max-width: 560px; line-height: 1.55; }
+
+  section { margin-top: 64px; }
+  .sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 20px; }
+  .sec-head h2 { font-size: 13px; font-weight: 500; letter-spacing: 0.04em; margin: 0; }
+  .sec-head .num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); }
+  .sec-head .rule { flex: 1; height: 1px; background: var(--line); }
+
+  .grid { display: grid; gap: 16px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+    display: flex; align-items: center; justify-content: center; position: relative;
+    overflow: hidden;
+  }
+  .tag {
+    position: absolute; left: 14px; bottom: 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: rgba(255,255,255,0.3);
+  }
+  .card.light { background: #fff; }
+  .card.light .tag { color: rgba(0,0,0,0.32); }
+
+  /* hero */
+  .hero { height: 280px; }
+  .hero img { height: 76px; }
+
+  .two { grid-template-columns: 1fr 1fr; }
+  .three { grid-template-columns: repeat(3, 1fr); }
+  .marks .card { height: 200px; }
+  .marks img { height: 96px; }
+
+  /* favicon real-size strip */
+  .fav-strip { display: flex; align-items: flex-end; gap: 40px; flex-wrap: wrap; padding: 32px; }
+  .fav-item { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .fav-item .px { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--dim); }
+  .browser-tab {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #1a1a1d; border: 1px solid var(--line); border-radius: 8px 8px 0 0;
+    padding: 8px 14px 8px 10px; font-size: 12px; color: var(--ink); font-weight: 400;
+  }
+  .browser-tab img { width: 16px; height: 16px; }
+
+  .avatars { grid-template-columns: repeat(4, 1fr); }
+  .avatars .card { aspect-ratio: 1; padding: 18px; }
+  .avatars img { width: 100%; border-radius: 50%; }
+  .avatars .square img { border-radius: 14px; }
+
+  .og .card { padding: 0; }
+  .og img { width: 100%; display: block; }
+
+  /* install code */
+  pre {
+    background: #0a0a0c; border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px 24px; overflow-x: auto; margin: 0;
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.85;
+    color: #cfd2d6;
+  }
+  pre .c { color: var(--dim); }
+  pre .t { color: var(--accent); }
+  .swatches { display: flex; gap: 14px; flex-wrap: wrap; }
+  .sw { display: flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--dim); }
+  .chip { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--line); }
+  .foot { margin-top: 72px; color: var(--dim); font-size: 13px; border-top: 1px solid var(--line); padding-top: 22px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Brand · Direction C4</div>
+    <h1>Eth<b>Value</b> identity</h1>
+    <p class="lede">A rounded-join monoline take on the Ethereum diamond — quiet, precise, and at home on a black canvas.</p>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="num">01</span><h2>Primary lockup</h2><span class="rule"></span></div>
+    <div class="grid">
+      <div class="card hero"><img src="svg/ethvalue-lockup.svg" alt="EthValue lockup" /><span class="tag">ethvalue-lockup.svg</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">02</span><h2>The mark · on dark / on light</h2><span class="rule"></span></div>
+    <div class="grid two marks">
+      <div class="card"><img src="svg/ethvalue-mark.svg" alt="mark white" /><span class="tag">ethvalue-mark.svg</span></div>
+      <div class="card light"><img src="svg/ethvalue-mark-ink.svg" alt="mark ink" /><span class="tag">ethvalue-mark-ink.svg</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">03</span><h2>Favicon · real size</h2><span class="rule"></span></div>
+    <div class="card" style="justify-content:flex-start;">
+      <div class="fav-strip">
+        <div class="fav-item"><div class="browser-tab"><img src="favicon/favicon-16.png" alt="" /> ethvalue.com</div><span class="px">browser tab · 16px</span></div>
+        <div class="fav-item"><img src="favicon/favicon-16.png" width="16" height="16" alt="" /><span class="px">16</span></div>
+        <div class="fav-item"><img src="favicon/favicon-32.png" width="32" height="32" alt="" /><span class="px">32</span></div>
+        <div class="fav-item"><img src="favicon/favicon-48.png" width="48" height="48" alt="" /><span class="px">48</span></div>
+        <div class="fav-item"><img src="favicon/favicon.svg" width="72" height="72" alt="" /><span class="px">svg ∞</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">04</span><h2>App icons</h2><span class="rule"></span></div>
+    <div class="grid three">
+      <div class="card" style="aspect-ratio:1;padding:22px;"><img src="favicon/apple-touch-icon.png" style="width:100%;border-radius:22%;" alt="" /><span class="tag">apple-touch · 180</span></div>
+      <div class="card" style="aspect-ratio:1;padding:22px;"><img src="favicon/icon-192.png" style="width:100%;border-radius:22%;" alt="" /><span class="tag">icon · 192</span></div>
+      <div class="card" style="aspect-ratio:1;padding:22px;"><img src="favicon/icon-512.png" style="width:100%;border-radius:22%;" alt="" /><span class="tag">icon · 512 maskable</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">05</span><h2>Profile pictures</h2><span class="rule"></span></div>
+    <div class="grid avatars">
+      <div class="card"><img src="avatar/avatar-dark-1000.png" alt="" /><span class="tag">dark · circle</span></div>
+      <div class="card square"><img src="avatar/avatar-dark-1000.png" alt="" /><span class="tag">dark · square</span></div>
+      <div class="card light"><img src="avatar/avatar-light-1000.png" alt="" /><span class="tag">light · circle</span></div>
+      <div class="card square light"><img src="avatar/avatar-light-1000.png" alt="" /><span class="tag">light · square</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">06</span><h2>Social card · 1200×630</h2><span class="rule"></span></div>
+    <div class="grid og">
+      <div class="card"><img src="avatar/og-image-1200x630.png" alt="OG image" /><span class="tag">og-image-1200x630.png</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">07</span><h2>Color</h2><span class="rule"></span></div>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#070709;"></div>#070709 · canvas</div>
+      <div class="sw"><div class="chip" style="background:#f4f4f5;"></div>#F4F4F5 · ink</div>
+      <div class="sw"><div class="chip" style="background:rgba(255,255,255,0.5);"></div>white 50% · folds</div>
+      <div class="sw"><div class="chip" style="background:#3fb27f;"></div>#3FB27F · accent</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="num">08</span><h2>Install</h2><span class="rule"></span></div>
+    <pre><span class="c">&lt;!-- drop /favicon contents into your public root, then: --&gt;</span>
+&lt;link rel=<span class="t">"icon"</span> href=<span class="t">"/favicon.svg"</span> type=<span class="t">"image/svg+xml"</span> /&gt;
+&lt;link rel=<span class="t">"icon"</span> type=<span class="t">"image/png"</span> sizes=<span class="t">"32x32"</span> href=<span class="t">"/favicon-32.png"</span> /&gt;
+&lt;link rel=<span class="t">"icon"</span> type=<span class="t">"image/png"</span> sizes=<span class="t">"16x16"</span> href=<span class="t">"/favicon-16.png"</span> /&gt;
+&lt;link rel=<span class="t">"apple-touch-icon"</span> sizes=<span class="t">"180x180"</span> href=<span class="t">"/apple-touch-icon.png"</span> /&gt;
+&lt;link rel=<span class="t">"manifest"</span> href=<span class="t">"/site.webmanifest"</span> /&gt;
+&lt;meta name=<span class="t">"theme-color"</span> content=<span class="t">"#070709"</span> /&gt;
+&lt;meta property=<span class="t">"og:image"</span> content=<span class="t">"/og-image-1200x630.png"</span> /&gt;</pre>
+  </section>
+
+  <div class="foot">EthValue · brand direction C4 — rounded-join monoline. Full file list & notes in README.md.</div>
+
+</div>
+</body>
+</html>

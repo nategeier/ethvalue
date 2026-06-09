@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><defs><radialGradient id="bgg" cx="32%" cy="24%" r="92%"><stop offset="0" stop-color="#191920"></stop><stop offset="0.55" stop-color="#0b0b0e"></stop><stop offset="1" stop-color="#070709"></stop></radialGradient></defs><rect width="64" height="64" rx="14" fill="url(#bgg)"></rect><g transform="translate(17.52,8.32) scale(0.2299)">
+    <g fill="none" stroke="#ffffff" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke">
+      <polygon points="63,2 122,103 63,140 4,103"></polygon>
+      <polygon points="4,115 63,204 122,115"></polygon>
+    </g>
+    <g fill="none" stroke="rgba(255,255,255,0.66)" stroke-width="4.32" stroke-linecap="round" vector-effect="non-scaling-stroke">
+      <line x1="63" y1="8" x2="63" y2="136"></line>
+      <line x1="63" y1="156" x2="63" y2="200"></line>
+    </g>
+  </g></svg>
