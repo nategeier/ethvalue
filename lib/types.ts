@@ -24,17 +24,21 @@ export interface TxVolumePoint {
   value: number; // daily transaction count
 }
 
-export interface StakingFlowPoint {
+export interface ValidatorQueuePoint {
   time: number; // Unix timestamp (seconds)
-  inflow: number; // ETH entering the staking queue that day
-  outflow: number; // ETH exiting the staking queue that day
+  entryQueue: number; // ETH waiting to enter (activation queue)
+  exitQueue: number; // ETH waiting to exit
 }
 
-export interface StakingWaitStats {
-  avgEntryWaitDays: number; // avg modeled entry-queue wait over the range
-  avgExitWaitDays: number; // avg modeled exit-queue wait over the range
-  currentEntryWaitDays: number; // latest modeled entry-queue wait
-  currentExitWaitDays: number; // latest modeled exit-queue wait
+export interface ValidatorQueueStats {
+  avgEntryWaitDays: number; // avg entry-queue wait over the range
+  avgExitWaitDays: number; // avg exit-queue wait over the range
+  currentEntryWaitDays: number; // latest entry-queue wait
+  currentExitWaitDays: number; // latest exit-queue wait
+  currentEntryQueue: number; // latest entry queue (ETH)
+  currentExitQueue: number; // latest exit queue (ETH)
+  stakedPercent: number | null; // % of supply staked
+  apr: number | null; // staking APR
 }
 
 export interface PortfolioEntry {
