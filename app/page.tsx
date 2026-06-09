@@ -21,6 +21,25 @@ const PortfolioManager = dynamic(() => import("@/components/PortfolioManager"), 
   ssr: false,
 });
 
+const chartFallback = (
+  <div className="w-full rounded-2xl border border-surface-4/50 bg-surface-1 flex items-center justify-center h-[420px]">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-10 h-10 rounded-full border-2 border-t-white border-r-transparent border-b-transparent border-l-transparent animate-spin" />
+      <p className="text-ink-4 text-sm">Loading chart...</p>
+    </div>
+  </div>
+);
+
+const TxVolumeChart = dynamic(() => import("@/components/TxVolumeChart"), {
+  ssr: false,
+  loading: () => chartFallback,
+});
+
+const StakingQueueChart = dynamic(() => import("@/components/StakingQueueChart"), {
+  ssr: false,
+  loading: () => chartFallback,
+});
+
 export default function HomePage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
@@ -39,6 +58,15 @@ export default function HomePage() {
       {/* 10-year candlestick chart */}
       <Suspense fallback={null}>
         <CandlestickChart />
+      </Suspense>
+
+      {/* On-chain activity charts (ethvalue DB) */}
+      <Suspense fallback={null}>
+        <TxVolumeChart />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <StakingQueueChart />
       </Suspense>
 
       {/* Beyond spot metrics */}
