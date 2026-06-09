@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 252 84" width="252" height="84">
+  <g transform="translate(0.00,7.00) scale(0.3398)">
+    <g fill="none" stroke="#0b0b0d" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke">
+      <polygon points="63,2 122,103 63,140 4,103"></polygon>
+      <polygon points="4,115 63,204 122,115"></polygon>
+    </g>
+    <g fill="none" stroke="#9a9aa1" stroke-width="2.45" stroke-linecap="round" vector-effect="non-scaling-stroke">
+      <line x1="63" y1="8" x2="63" y2="136"></line>
+      <line x1="63" y1="156" x2="63" y2="200"></line>
+    </g>
+  </g>
+  <text x="66" y="55" font-family="Sora, ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="40" letter-spacing="-1.4"><tspan font-weight="600" fill="#0b0b0d">Eth</tspan><tspan font-weight="300" fill="#0b0b0d">Value</tspan></text>
+</svg>

@@ -7,15 +7,16 @@ import { useEthPrice } from "@/hooks/useEthPrice";
 import { formatCurrency, cn } from "@/lib/utils";
 import { BarChart2, Wallet, Zap } from "lucide-react";
 
+// EthValue brand mark — monoline Ethereum diamond (currentColor-friendly).
 const ETH_LOGO = () => (
-  <svg viewBox="0 0 784.37 1277.39" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
-    <g>
-      <polygon fill="currentColor" fillOpacity="0.9"  points="392.07,0 383.5,29.11 383.5,873.74 392.07,882.29 784.13,650.54"/>
-      <polygon fill="currentColor" fillOpacity="0.55" points="392.07,0 -0,650.54 392.07,882.29 392.07,472.33"/>
-      <polygon fill="currentColor" fillOpacity="0.4"  points="392.07,956.52 387.24,962.41 387.24,1250.09 392.07,1264.42 784.37,724.89"/>
-      <polygon fill="currentColor" fillOpacity="0.75" points="392.07,1264.42 392.07,956.52 -0,724.89"/>
-      <polygon fill="currentColor" fillOpacity="0.2"  points="392.07,882.29 784.13,650.54 392.07,472.33"/>
-      <polygon fill="currentColor" fillOpacity="0.1"  points="-0,650.54 392.07,882.29 392.07,472.33"/>
+  <svg viewBox="-10 -10 146 226" className="h-4 w-auto" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <g fill="none" stroke="currentColor" strokeWidth={9} strokeLinejoin="round" strokeLinecap="round">
+      <polygon points="63,2 122,103 63,140 4,103" />
+      <polygon points="4,115 63,204 122,115" />
+    </g>
+    <g fill="none" stroke="currentColor" strokeOpacity={0.5} strokeWidth={6.5} strokeLinecap="round">
+      <line x1="63" y1="8" x2="63" y2="136" />
+      <line x1="63" y1="156" x2="63" y2="200" />
     </g>
   </svg>
 );
@@ -41,7 +42,13 @@ export default function Navigation() {
               <ETH_LOGO />
             </div>
             <div>
-              <span className="font-bold text-white text-sm tracking-tight">EthValue</span>
+              <span
+                className="text-white text-sm tracking-tight"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                <span style={{ fontWeight: 600 }}>Eth</span>
+                <span style={{ fontWeight: 300 }}>Value</span>
+              </span>
               <p className="text-[10px] text-ink-5 leading-none mt-0.5 tracking-wider uppercase">Beyond Spot</p>
             </div>
           </Link>
