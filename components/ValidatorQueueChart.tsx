@@ -5,12 +5,13 @@ import {
   createChart,
   ColorType,
   CrosshairMode,
+  LineStyle,
   type IChartApi,
   type ISeriesApi,
   type MouseEventParams,
   type Time,
 } from "lightweight-charts";
-import { useStakingQueue } from "@/hooks/useStakingQueue";
+import { useValidatorQueue } from "@/hooks/useValidatorQueue";
 import type { TimeRange } from "@/lib/types";
 import { TIME_RANGES } from "@/lib/types";
 import { formatDate } from "@/lib/utils";
@@ -18,8 +19,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Layers, RefreshCw, ArrowDownRight, ArrowUpRight, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const IN_COLOR = "rgba(34, 197, 94, 0.6)";
-const OUT_COLOR = "rgba(239, 68, 68, 0.6)";
+const ENTRY_LINE = "#22c55e";
+const ENTRY_FILL_TOP = "rgba(34, 197, 94, 0.28)";
+const ENTRY_FILL_BOT = "rgba(34, 197, 94, 0.02)";
+const EXIT_LINE = "#ef4444";
+const EXIT_FILL_TOP = "rgba(239, 68, 68, 0.26)";
+const EXIT_FILL_BOT = "rgba(239, 68, 68, 0.02)";
 
 function formatEth(n: number): string {
   const v = Math.abs(n);
@@ -37,22 +42,22 @@ function formatWait(days: number): string {
 
 interface TooltipData {
   time: number;
-  inflow: number;
-  outflow: number;
+  entryQueue: number;
+  exitQueue: number;
   x: number;
   y: number;
 }
 
-export default function StakingQueueChart() {
+export default function ValidatorQueueChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const inSeriesRef = useRef<ISeriesApi<any> | null>(null);
+  const entrySeriesRef = useRef<ISeriesApi<any> | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const outSeriesRef = useRef<ISeriesApi<any> | null>(null);
+  const exitSeriesRef = useRef<ISeriesApi<any> | null>(null);
 
   const [selectedRange, setSelectedRange] = useState<TimeRange>("1Y");
-  const { points, waitStats, loading, error, refetch } = useStakingQueue(selectedRange);
+  const { points, stats, loading, error, refetch } = useValidatorQueue(selectedRange);
   const [tooltip, setTooltip] = useState<TooltipData | null>(null);
 
   useEffect(() => {
@@ -76,7 +81,7 @@ export default function StakingQueueChart() {
       },
       rightPriceScale: {
         borderColor: "rgba(255,255,255,0.06)",
-        scaleMargins: { top: 0.15, bottom: 0.15 },
+        scaleMargins: { top: 0.12, bottom: 0.08 },
       },
       timeScale: {
         borderColor: "rgba(255,255,255,0.06)",
@@ -92,18 +97,29 @@ export default function StakingQueueChart() {
       height: chartContainerRef.current.clientHeight,
     });
 
-    const inSeries = chart.addHistogramSeries({
-      color: IN_COLOR,
+    const entrySeries = chart.addAreaSeries({
+      lineColor: ENTRY_LINE,
+      topColor: ENTRY_FILL_TOP,
+      bottomColor: ENTRY_FILL_BOT,
+      lineWidth: 2,
       priceFormat: { type: "volume" },
+      priceLineVisible: false,
+      lastValueVisible: false,
     });
-    const outSeries = chart.addHistogramSeries({
-      color: OUT_COLOR,
+    const exitSeries = chart.addAreaSeries({
+      lineColor: EXIT_LINE,
+      topColor: EXIT_FILL_TOP,
+      bottomColor: EXIT_FILL_BOT,
+      lineWidth: 2,
+      lineStyle: LineStyle.Solid,
       priceFormat: { type: "volume" },
+      priceLineVisible: false,
+      lastValueVisible: false,
     });
 
     chartRef.current = chart;
-    inSeriesRef.current = inSeries;
-    outSeriesRef.current = outSeries;
+    entrySeriesRef.current = entrySeries;
+    exitSeriesRef.current = exitSeries;
 
     chart.subscribeCrosshairMove((param: MouseEventParams) => {
       if (!param.point || !param.time || !chartContainerRef.current) {
@@ -111,14 +127,14 @@ export default function StakingQueueChart() {
         return;
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const inData = param.seriesData.get(inSeries) as any;
+      const e = param.seriesData.get(entrySeries) as any;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const outData = param.seriesData.get(outSeries) as any;
-      if (!inData && !outData) { setTooltip(null); return; }
+      const x = param.seriesData.get(exitSeries) as any;
+      if (!e && !x) { setTooltip(null); return; }
       setTooltip({
         time: param.time as number,
-        inflow: inData?.value ?? 0,
-        outflow: Math.abs(outData?.value ?? 0),
+        entryQueue: e?.value ?? 0,
+        exitQueue: x?.value ?? 0,
         x: param.point.x,
         y: param.point.y,
       });
@@ -142,21 +158,12 @@ export default function StakingQueueChart() {
   }, []);
 
   useEffect(() => {
-    if (!inSeriesRef.current || !outSeriesRef.current || !points.length) return;
-    inSeriesRef.current.setData(
-      points.map((p) => ({
-        time: p.time as unknown as Time,
-        value: p.inflow,
-        color: IN_COLOR,
-      }))
+    if (!entrySeriesRef.current || !exitSeriesRef.current || !points.length) return;
+    entrySeriesRef.current.setData(
+      points.map((p) => ({ time: p.time as unknown as Time, value: p.entryQueue }))
     );
-    // Outflows plotted below the zero line so the chart diverges in/out.
-    outSeriesRef.current.setData(
-      points.map((p) => ({
-        time: p.time as unknown as Time,
-        value: -p.outflow,
-        color: OUT_COLOR,
-      }))
+    exitSeriesRef.current.setData(
+      points.map((p) => ({ time: p.time as unknown as Time, value: p.exitQueue }))
     );
     chartRef.current?.timeScale().fitContent();
   }, [points]);
@@ -165,10 +172,6 @@ export default function StakingQueueChart() {
     setSelectedRange(range);
   }, []);
 
-  const totalIn = points.reduce((s, p) => s + p.inflow, 0);
-  const totalOut = points.reduce((s, p) => s + p.outflow, 0);
-  const net = totalIn - totalOut;
-
   return (
     <div className="relative w-full rounded-2xl overflow-hidden border border-surface-4/50 bg-surface-1 shadow-card">
       {/* Header */}
@@ -176,28 +179,27 @@ export default function StakingQueueChart() {
         <div className="flex items-center gap-3">
           <Layers className="w-4 h-4 text-ink-4" />
           <div>
-            <h3 className="text-sm font-semibold text-white">Staking Queue Flows</h3>
-            <p className="text-xs text-ink-5">Beacon chain · ETH entering vs exiting / day</p>
+            <h3 className="text-sm font-semibold text-white">Validator Queue</h3>
+            <p className="text-xs text-ink-5">Beacon chain · ETH waiting to enter vs exit</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
-          {points.length > 0 && (
+          {stats && (
             <div className="hidden md:flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1 text-ink-5">
                 <ArrowUpRight className="w-3 h-3 text-green-400" />
-                In <span className="text-green-400 font-mono">{formatEth(totalIn)}</span>
+                Entry <span className="text-green-400 font-mono">{formatEth(stats.currentEntryQueue)}</span>
               </span>
               <span className="flex items-center gap-1 text-ink-5">
                 <ArrowDownRight className="w-3 h-3 text-red-400" />
-                Out <span className="text-red-400 font-mono">{formatEth(totalOut)}</span>
+                Exit <span className="text-red-400 font-mono">{formatEth(stats.currentExitQueue)}</span>
               </span>
-              <span className={cn(
-                "font-mono",
-                net >= 0 ? "text-green-400" : "text-red-400"
-              )}>
-                Net {net >= 0 ? "+" : ""}{formatEth(net)}
-              </span>
+              {stats.stakedPercent != null && (
+                <span className="text-ink-5">
+                  Staked <span className="text-ink-2 font-mono">{stats.stakedPercent.toFixed(1)}%</span>
+                </span>
+              )}
             </div>
           )}
           <button
@@ -228,7 +230,7 @@ export default function StakingQueueChart() {
         ))}
       </div>
 
-      {/* Average wait times */}
+      {/* Wait times */}
       <div className="grid grid-cols-2 gap-px bg-surface-4/30 border-b border-surface-4/30">
         <div className="flex items-center gap-3 px-6 py-3 bg-surface-1">
           <div className="p-1.5 rounded-lg bg-green-500/10 border border-green-500/20">
@@ -236,15 +238,15 @@ export default function StakingQueueChart() {
           </div>
           <div>
             <p className="text-[11px] text-ink-5 flex items-center gap-1">
-              <Clock className="w-3 h-3" /> Avg entry wait <span className="text-ink-6">· est.</span>
+              <Clock className="w-3 h-3" /> Entry wait
             </p>
             <p className="text-base font-bold text-white tabular-nums">
-              {waitStats ? formatWait(waitStats.avgEntryWaitDays) : "—"}
+              {stats ? formatWait(stats.currentEntryWaitDays) : "—"}
             </p>
           </div>
-          {waitStats && (
+          {stats && (
             <span className="ml-auto text-[11px] text-ink-5 font-mono">
-              now {formatWait(waitStats.currentEntryWaitDays)}
+              avg {formatWait(stats.avgEntryWaitDays)}
             </span>
           )}
         </div>
@@ -254,15 +256,15 @@ export default function StakingQueueChart() {
           </div>
           <div>
             <p className="text-[11px] text-ink-5 flex items-center gap-1">
-              <Clock className="w-3 h-3" /> Avg exit wait <span className="text-ink-6">· est.</span>
+              <Clock className="w-3 h-3" /> Exit wait
             </p>
             <p className="text-base font-bold text-white tabular-nums">
-              {waitStats ? formatWait(waitStats.avgExitWaitDays) : "—"}
+              {stats ? formatWait(stats.currentExitWaitDays) : "—"}
             </p>
           </div>
-          {waitStats && (
+          {stats && (
             <span className="ml-auto text-[11px] text-ink-5 font-mono">
-              now {formatWait(waitStats.currentExitWaitDays)}
+              avg {formatWait(stats.avgExitWaitDays)}
             </span>
           )}
         </div>
@@ -289,7 +291,7 @@ export default function StakingQueueChart() {
         {error && !loading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <p className="text-red-400 text-sm mb-2">Failed to load staking queue data</p>
+              <p className="text-red-400 text-sm mb-2">Failed to load validator queue data</p>
               <button onClick={refetch} className="text-xs text-ink-4 hover:text-white transition-colors underline underline-offset-2">
                 Try again
               </button>
@@ -308,24 +310,16 @@ export default function StakingQueueChart() {
               className="absolute pointer-events-none z-10 bg-surface-2/95 backdrop-blur-sm border border-surface-5 rounded-xl p-3 shadow-card text-xs"
               style={{
                 left: tooltip.x > (chartContainerRef.current?.clientWidth || 500) / 2
-                  ? tooltip.x - 185 : tooltip.x + 16,
-                top: Math.max(8, tooltip.y - 70),
+                  ? tooltip.x - 195 : tooltip.x + 16,
+                top: Math.max(8, tooltip.y - 60),
               }}
             >
               <p className="text-ink-5 mb-2 font-mono">{formatDate(tooltip.time)}</p>
               <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                <span className="text-ink-5">Inflow</span>
-                <span className="text-green-400 font-mono">{Math.round(tooltip.inflow).toLocaleString()} ETH</span>
-                <span className="text-ink-5">Outflow</span>
-                <span className="text-red-400 font-mono">{Math.round(tooltip.outflow).toLocaleString()} ETH</span>
-                <span className="text-ink-5">Net</span>
-                <span className={cn(
-                  "font-mono font-semibold",
-                  tooltip.inflow - tooltip.outflow >= 0 ? "text-green-400" : "text-red-400"
-                )}>
-                  {tooltip.inflow - tooltip.outflow >= 0 ? "+" : ""}
-                  {Math.round(tooltip.inflow - tooltip.outflow).toLocaleString()} ETH
-                </span>
+                <span className="text-ink-5">Entry queue</span>
+                <span className="text-green-400 font-mono">{Math.round(tooltip.entryQueue).toLocaleString()} ETH</span>
+                <span className="text-ink-5">Exit queue</span>
+                <span className="text-red-400 font-mono">{Math.round(tooltip.exitQueue).toLocaleString()} ETH</span>
               </div>
             </motion.div>
           )}
@@ -333,7 +327,7 @@ export default function StakingQueueChart() {
       </div>
 
       <div className="px-6 py-2 border-t border-surface-4/30 flex items-center justify-between text-[11px] text-ink-5">
-        <span>ethvalue DB</span>
+        <span>ethvalue DB · validatorqueue.com</span>
         <span>{points.length.toLocaleString()} days</span>
       </div>
     </div>

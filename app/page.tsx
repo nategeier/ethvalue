@@ -35,7 +35,7 @@ const TxVolumeChart = dynamic(() => import("@/components/TxVolumeChart"), {
   loading: () => chartFallback,
 });
 
-const StakingQueueChart = dynamic(() => import("@/components/StakingQueueChart"), {
+const ValidatorQueueChart = dynamic(() => import("@/components/ValidatorQueueChart"), {
   ssr: false,
   loading: () => chartFallback,
 });
@@ -66,7 +66,7 @@ export default function HomePage() {
       </Suspense>
 
       <Suspense fallback={null}>
-        <StakingQueueChart />
+        <ValidatorQueueChart />
       </Suspense>
 
       {/* Beyond spot metrics */}
