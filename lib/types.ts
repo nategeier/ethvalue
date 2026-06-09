@@ -19,6 +19,24 @@ export interface EthPrice {
   lastUpdated: string;
 }
 
+export interface TxVolumePoint {
+  time: number; // Unix timestamp (seconds)
+  value: number; // daily transaction count
+}
+
+export interface StakingFlowPoint {
+  time: number; // Unix timestamp (seconds)
+  inflow: number; // ETH entering the staking queue that day
+  outflow: number; // ETH exiting the staking queue that day
+}
+
+export interface StakingWaitStats {
+  avgEntryWaitDays: number; // avg modeled entry-queue wait over the range
+  avgExitWaitDays: number; // avg modeled exit-queue wait over the range
+  currentEntryWaitDays: number; // latest modeled entry-queue wait
+  currentExitWaitDays: number; // latest modeled exit-queue wait
+}
+
 export interface PortfolioEntry {
   id: string;
   label: string;
