@@ -1,0 +1,43 @@
+name: Refresh on-chain data
+
+# Keeps the ethvalue DB series fresh:
+#   - tx_volume      (Coin Metrics daily ETH tx count)
+#   - staking_queue  (Dune: beacon deposits in / withdrawals out)
+# Runs daily and on manual dispatch. Scheduled runs fire from the default
+# branch only (active once this is merged to main).
+
+on:
+  schedule:
+    - cron: "13 7 * * *" # 07:13 UTC daily
+  workflow_dispatch: {}
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Refresh transaction volume
+        run: node scripts/ingest-tx-volume.mjs
+
+      - name: Refresh staking queue flows
+        run: node scripts/ingest-staking.mjs
